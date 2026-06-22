@@ -393,21 +393,20 @@
             </div>
 
             <div class="form-group">
-                <label>Number of Project Slots</label>
-                <select id="projectCount">
-                    <option value="4">4 Projects</option>
-                    <option value="5">5 Projects</option>
-                    <option value="6">6 Projects</option>
-                    <option value="7">7 Projects</option>
-                    <option value="8" selected>8 Projects</option>
-                </select>
+                <label>Number of Project Slots (1-20)</label>
+                <input type="number" id="projectCount" min="1" max="20" value="8" />
+                <p style="color: #666; font-size: 0.9em; margin-top: 5px;">Choose how many project slots to create (1-20)</p>
             </div>
 
             <div class="form-group">
-                <label>
-                    <input type="checkbox" id="activateNow" checked />
-                    Activate this event immediately
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="activateNow" checked style="width: auto;" />
+                    <span>Activate this event immediately</span>
                 </label>
+                <p style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                    ✅ <strong>Checked:</strong> Event goes live right away (participants can start voting)<br>
+                    ⏸️ <strong>Unchecked:</strong> Event is created but inactive (you can activate it later from Manage Events)
+                </p>
             </div>
 
             <button class="btn btn-primary" onclick="createEvent()">Create Event</button>
@@ -517,13 +516,13 @@
             const eventId = 'bobathon-' + date;
             const projects = [];
 
-            const icons = ['📊', '🗂️', '📈', '🔗', '📋', '🗃️', '📑', '💾'];
+            const icons = ['📊', '🗂️', '📈', '🔗', '📋', '🗃️', '📑', '💾', '📉', '🗄️', '📇', '🗂', '📌', '📍', '🔖', '🏷️', '📎', '🖇️', '📐', '📏'];
             
             for (let i = 0; i < projectCount; i++) {
                 projects.push({
                     id: i + 1,
                     title: `Project ${i + 1}`,
-                    emoji: icons[i],
+                    emoji: icons[i % icons.length], // Cycle through icons if more than 20 projects
                     description: 'Click to add project description...',
                     votes: 0,
                     visible: true
@@ -540,21 +539,48 @@
                 projects: projects
             };
 
-            await set(ref(database, `events/${eventId}`), eventData);
+            try {
+                // If activating now, deactivate all other events first
+                if (activateNow) {
+                    const eventsRef = ref(database, 'events');
+                    const snapshot = await get(eventsRef);
+                    
+                    if (snapshot.exists()) {
+                        const events = snapshot.val();
+                        for (const id in events) {
+                            await update(ref(database, `events/${id}`), { active: false });
+                        }
+                    }
+                }
 
-            if (activateNow) {
-                await set(ref(database, 'settings/activeEventId'), eventId);
+                // Create the new event
+                await set(ref(database, `events/${eventId}`), eventData);
+
+                // Set as active if requested
+                if (activateNow) {
+                    await set(ref(database, 'settings/activeEventId'), eventId);
+                }
+
+                // Show success message
+                document.getElementById('createSuccess').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('createSuccess').style.display = 'none';
+                }, 3000);
+
+                // Clear form
+                document.getElementById('eventTitle').value = '';
+                document.getElementById('eventDate').value = '';
+                document.getElementById('projectCount').value = '8';
+                
+                // Reload events list
+                loadEvents();
+                loadDashboard();
+                
+                alert('Event created successfully!');
+            } catch (error) {
+                console.error('Error creating event:', error);
+                alert('Error creating event: ' + error.message);
             }
-
-            document.getElementById('createSuccess').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('createSuccess').style.display = 'none';
-            }, 3000);
-
-            document.getElementById('eventTitle').value = '';
-            document.getElementById('eventDate').value = '';
-            
-            loadEvents();
         }
 
         async function loadDashboard() {
