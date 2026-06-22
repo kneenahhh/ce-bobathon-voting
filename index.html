@@ -24,35 +24,42 @@
         }
 
         header {
-            text-align: center;
             color: white;
             margin-bottom: 40px;
             padding: 30px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 30px;
         }
 
         .bob-icon {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            display: block;
-            border-radius: 50%;
-            background: white;
-            padding: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            width: 150px;
+            height: auto;
+            flex-shrink: 0;
+        }
+
+        .header-content {
+            flex: 1;
         }
 
         h1 {
-            font-size: 3em;
+            font-size: 2.5em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .trophy {
-            font-size: 4em;
-            margin-bottom: 10px;
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .event-date {
+            font-size: 1em;
+            opacity: 0.8;
+            margin-bottom: 5px;
         }
 
         .subtitle {
@@ -124,32 +131,47 @@
             50% { transform: scale(1.2); }
         }
 
-        .flag {
-            font-size: 4em;
-            text-align: center;
+        .project-image-container {
+            width: 100%;
+            height: 200px;
             margin-bottom: 15px;
-            cursor: text;
-        }
-
-        .flag.editable {
-            border: 2px dashed #ccc;
-            padding: 10px;
-            border-radius: 5px;
-            min-height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #f5f5f5;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .flag.editable:hover {
+        .project-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .project-image-container.editable {
+            border: 2px dashed #ccc;
+            cursor: pointer;
+        }
+
+        .project-image-container.editable:hover {
             border-color: #667eea;
-            background: #f9f9f9;
+            background: #f0f0f0;
         }
 
-        .flag.editable:empty:before {
-            content: 'Click to add emoji';
+        .upload-placeholder {
+            text-align: center;
             color: #999;
-            font-size: 0.5em;
+            padding: 20px;
+        }
+
+        .upload-placeholder p {
+            margin: 10px 0;
+        }
+
+        .image-upload-input {
+            display: none;
         }
 
         .project-title {
@@ -321,7 +343,7 @@
             display: flex;
             gap: 15px;
             justify-content: center;
-            margin-top: 20px;
+            margin: 20px 0 30px 0;
             flex-wrap: wrap;
         }
 
@@ -376,8 +398,17 @@
         }
 
         @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .bob-icon {
+                width: 100px;
+            }
+
             h1 {
-                font-size: 2em;
+                font-size: 1.8em;
             }
             
             .projects-grid {
@@ -394,8 +425,11 @@
     <div class="container">
         <header>
             <img src="Bob Icon.png" alt="Bob" class="bob-icon" />
-            <h1 id="eventTitle">Loading...</h1>
-            <p class="subtitle" id="eventSubtitle">Vote for Your Favorite Hackathon Project!</p>
+            <div class="header-content">
+                <h1 id="eventTitle">Loading...</h1>
+                <p class="event-date" id="eventDate"></p>
+                <p class="subtitle">Vote for Your Favorite Project!</p>
+            </div>
         </header>
 
         <div id="connectionStatus" class="connection-status loading">
@@ -462,6 +496,18 @@
             if (!currentEvent) return;
             const votedKey = `voted_${currentEvent.id}`;
             const voted = localStorage.getItem(votedKey);
+            
+            // Check if all votes are 0 (means admin reset votes)
+            const allVotesZero = projects.every(p => (p.votes || 0) === 0);
+            if (allVotesZero && voted) {
+                // Clear the voting record if admin reset votes
+                localStorage.removeItem(votedKey);
+                hasVoted = false;
+                votedProjectId = null;
+                console.log('Votes were reset - you can vote again!');
+                return;
+            }
+            
             if (voted) {
                 hasVoted = true;
                 votedProjectId = parseInt(voted);
@@ -506,7 +552,7 @@
                         projects = currentEvent.projects || [];
                         
                         document.getElementById('eventTitle').textContent = currentEvent.title;
-                        document.getElementById('eventSubtitle').textContent = `${currentEvent.date} | Vote for Your Favorite Project!`;
+                        document.getElementById('eventDate').textContent = currentEvent.date;
                         
                         updateConnectionStatus('connected', '✅ Connected - Real-time voting active!');
                         checkVotingStatus();
@@ -545,10 +591,36 @@
                 }
                 card.id = `project-${project.id}`;
 
-                const emojiClass = editMode ? 'flag editable' : 'flag';
-                const emojiContent = editMode ?
-                    `<div class="${emojiClass}" contenteditable="true" onblur="saveEmoji(${project.id}, this.textContent)">${project.emoji}</div>` :
-                    `<div class="${emojiClass}">${project.emoji}</div>`;
+                // Image container
+                const imageUrl = project.imageUrl || project.emoji || '';
+                const isImageUrl = imageUrl.startsWith('data:') || imageUrl.startsWith('http');
+                
+                let imageContent;
+                if (editMode) {
+                    imageContent = `
+                        <div class="project-image-container editable" onclick="triggerImageUpload(${project.id})">
+                            ${isImageUrl ?
+                                `<img src="${imageUrl}" class="project-image" alt="Project image" />` :
+                                `<div class="upload-placeholder">
+                                    <p>📷</p>
+                                    <p>Click to upload image</p>
+                                    <p style="font-size: 0.8em;">(or paste emoji: ${imageUrl})</p>
+                                </div>`
+                            }
+                        </div>
+                        <input type="file" id="imageUpload${project.id}" class="image-upload-input"
+                               accept="image/*" onchange="handleImageUpload(${project.id}, event)" />
+                    `;
+                } else {
+                    imageContent = `
+                        <div class="project-image-container">
+                            ${isImageUrl ?
+                                `<img src="${imageUrl}" class="project-image" alt="Project image" />` :
+                                `<div style="font-size: 4em;">${imageUrl}</div>`
+                            }
+                        </div>
+                    `;
+                }
 
                 const titleClass = editMode ? 'project-title editable' : 'project-title';
                 const titleContent = editMode ?
@@ -568,7 +640,7 @@
                 const voteButtonDisabled = hasVoted && votedProjectId !== project.id;
 
                 card.innerHTML = `
-                    ${emojiContent}
+                    ${imageContent}
                     ${titleContent}
                     ${descContent}
                     ${!editMode ? `
@@ -578,7 +650,7 @@
                         <div class="vote-count">Votes: ${project.votes || 0}</div>
                     ` : `
                         <p style="text-align: center; color: #667eea; margin-top: 15px;">
-                            Click on emoji, title, or description to edit
+                            Click on image to upload, or edit title/description
                         </p>
                     `}
                 `;
@@ -587,16 +659,44 @@
             });
         }
 
-        // Save emoji
-        window.saveEmoji = async function(projectId, text) {
+        // Trigger image upload
+        window.triggerImageUpload = function(projectId) {
+            document.getElementById(`imageUpload${projectId}`).click();
+        }
+
+        // Handle image upload
+        window.handleImageUpload = async function(projectId, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Image too large! Please choose an image under 2MB.');
+                return;
+            }
+
+            // Convert to base64
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const imageData = e.target.result;
+                await saveImage(projectId, imageData);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Save image
+        async function saveImage(projectId, imageData) {
             if (!currentEvent) return;
             const projectIndex = projects.findIndex(p => p.id === projectId);
             if (projectIndex !== -1) {
                 const updates = {};
-                updates[`events/${currentEvent.id}/projects/${projectIndex}/emoji`] = text.trim();
+                updates[`events/${currentEvent.id}/projects/${projectIndex}/imageUrl`] = imageData;
+                // Also clear emoji field when image is uploaded
+                updates[`events/${currentEvent.id}/projects/${projectIndex}/emoji`] = '';
                 await update(ref(database), updates);
             }
         }
+
 
         // Save title
         window.saveTitle = async function(projectId, text) {
