@@ -90,35 +90,130 @@
             color: white;
         }
 
-        .privacy-notice {
-            background: rgba(255, 255, 255, 0.95);
-            border-left: 4px solid #667eea;
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
             padding: 20px;
-            margin-bottom: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .privacy-notice h3 {
-            color: #667eea;
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        /* Modal Content */
+        .privacy-modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .modal-header .icon {
+            font-size: 3em;
             margin-bottom: 10px;
-            font-size: 1.2em;
         }
 
-        .privacy-notice p {
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-body p {
             color: #333;
             line-height: 1.6;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .privacy-notice ul {
+        .modal-body ul {
             color: #333;
             margin-left: 20px;
             line-height: 1.8;
+            margin-bottom: 20px;
         }
 
-        .privacy-notice strong {
+        .modal-body li {
+            margin-bottom: 10px;
+        }
+
+        .modal-body strong {
             color: #667eea;
+        }
+
+        .modal-footer {
+            padding: 20px 30px 30px;
+            text-align: center;
+        }
+
+        .understand-btn {
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .understand-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .understand-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .privacy-modal {
+                max-height: 95vh;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5em;
+            }
         }
 
         .projects-grid {
@@ -612,6 +707,26 @@
                 updateConnectionStatus('disconnected', '❌ Connection error');
             }
         }
+
+        // Privacy Modal Functions
+        window.closePrivacyModal = function() {
+            document.getElementById('privacyModal').classList.add('hidden');
+            // Remember that user has seen the notice
+            localStorage.setItem('privacyNoticeAccepted', 'true');
+        }
+
+        function showPrivacyModal() {
+            // Check if user has already accepted the privacy notice
+            const hasAccepted = localStorage.getItem('privacyNoticeAccepted');
+            if (!hasAccepted) {
+                document.getElementById('privacyModal').classList.remove('hidden');
+            }
+        }
+
+        // Show privacy modal on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            showPrivacyModal();
+        });
 
         // Toggle edit mode
         window.toggleEditMode = function() {
