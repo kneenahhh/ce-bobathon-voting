@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bobathon Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-container h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-container button:hover {
+            opacity: 0.9;
+        }
+
+        .error-message {
+            color: #eb3349;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            color: #667eea;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: #eb3349;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .event-list {
+            list-style: none;
+        }
+
+        .event-item {
+            background: #f5f5f5;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-item.active {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+            border: 3px solid #ffd700;
+        }
+
+        .event-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .event-info p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge-active {
+            background: #38ef7d;
+            color: white;
+        }
+
+        .badge-inactive {
+            background: #ccc;
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-card h2 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .success-message {
+            background: #38ef7d;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .project-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .slot-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+
+        .slot-card.visible {
+            border-color: #38ef7d;
+            background: #f0fff4;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-left: 10px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #38ef7d;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        @media (max-width: 768px) {
+            .event-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .event-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <h1>🔐 Admin Login</h1>
+        <input type="password" id="passwordInput" placeholder="Enter admin password" />
+        <button onclick="login()">Login</button>
+        <p class="error-message" id="errorMessage">Incorrect password</p>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-container" id="adminContainer">
+        <header>
+            <h1>🎯 Bobathon Admin Panel</h1>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="switchTab('create')">➕ Create Event</button>
+            <button class="tab" onclick="switchTab('manage')">⚙️ Manage Events</button>
+            <button class="tab" onclick="switchTab('settings')">🔧 Settings</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <h2>Dashboard</h2>
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be populated here -->
+            </div>
+            <div id="activeEventInfo"></div>
+        </div>
+
+        <!-- Create Event Tab -->
+        <div class="tab-content" id="create">
+            <h2>Create New Bobathon Event</h2>
+            <div class="success-message" id="createSuccess">Event created successfully!</div>
+            
+            <div class="form-group">
+                <label>Event Title</label>
+                <input type="text" id="eventTitle" placeholder="e.g., Fall 2026 Bobathon" />
+            </div>
+
+            <div class="form-group">
+                <label>Event Date</label>
+                <input type="date" id="eventDate" />
+            </div>
+
+            <div class="form-group">
+                <label>Number of Project Slots</label>
+                <select id="projectCount">
+                    <option value="4">4 Projects</option>
+                    <option value="5">5 Projects</option>
+                    <option value="6">6 Projects</option>
+                    <option value="7">7 Projects</option>
+                    <option value="8" selected>8 Projects</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="activateNow" checked />
+                    Activate this event immediately
+                </label>
+            </div>
+
+            <button class="btn btn-primary" onclick="createEvent()">Create Event</button>
+        </div>
+
+        <!-- Manage Events Tab -->
+        <div class="tab-content" id="manage">
+            <h2>Manage Events</h2>
+            <ul class="event-list" id="eventList">
+                <!-- Events will be populated here -->
+            </ul>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-content" id="settings">
+            <h2>Settings</h2>
+            
+            <div class="form-group">
+                <label>Admin Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password" />
+                <button class="btn btn-primary" onclick="changePassword()" style="margin-top: 10px;">Change Password</button>
+            </div>
+
+            <hr style="margin: 30px 0;">
+
+            <div class="form-group">
+                <label>Danger Zone</label>
+                <button class="btn btn-danger" onclick="deleteAllData()">Delete All Data</button>
+                <p style="color: #eb3349; margin-top: 10px; font-size: 0.9em;">⚠️ This will permanently delete all events and votes!</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, update, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCITNIV6RyoCgIQJziv9WYxOGPq-1-ct04",
+            authDomain: "bobathon-voting.firebaseapp.com",
+            databaseURL: "https://bobathon-voting-default-rtdb.firebaseio.com",
+            projectId: "bobathon-voting",
+            storageBucket: "bobathon-voting.firebasestorage.app",
+            messagingSenderId: "88996679714",
+            appId: "1:88996679714:web:13f4b19f7dacbb05ffba7b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Default admin password (change this!)
+        const DEFAULT_PASSWORD = "bobathon2026";
+        let currentPassword = DEFAULT_PASSWORD;
+
+        // Load password from Firebase
+        async function loadPassword() {
+            const passwordRef = ref(database, 'admin/password');
+            const snapshot = await get(passwordRef);
+            if (snapshot.exists()) {
+                currentPassword = snapshot.val();
+            } else {
+                await set(passwordRef, DEFAULT_PASSWORD);
+            }
+        }
+
+        window.login = async function() {
+            await loadPassword();
+            const input = document.getElementById('passwordInput').value;
+            if (input === currentPassword) {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('adminContainer').style.display = 'block';
+                loadDashboard();
+                loadEvents();
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+
+        window.logout = function() {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('adminContainer').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+
+            if (tabName === 'dashboard') loadDashboard();
+            if (tabName === 'manage') loadEvents();
+        }
+
+        window.createEvent = async function() {
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const projectCount = parseInt(document.getElementById('projectCount').value);
+            const activateNow = document.getElementById('activateNow').checked;
+
+            if (!title || !date) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const eventId = 'bobathon-' + date;
+            const projects = [];
+
+            const icons = ['📊', '🗂️', '📈', '🔗', '📋', '🗃️', '📑', '💾'];
+            
+            for (let i = 0; i < projectCount; i++) {
+                projects.push({
+                    id: i + 1,
+                    title: `Project ${i + 1}`,
+                    emoji: icons[i],
+                    description: 'Click to add project description...',
+                    votes: 0,
+                    visible: true
+                });
+            }
+
+            const eventData = {
+                id: eventId,
+                title: title,
+                date: date,
+                projectCount: projectCount,
+                active: activateNow,
+                createdAt: new Date().toISOString(),
+                projects: projects
+            };
+
+            await set(ref(database, `events/${eventId}`), eventData);
+
+            if (activateNow) {
+                await set(ref(database, 'settings/activeEventId'), eventId);
+            }
+
+            document.getElementById('createSuccess').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('createSuccess').style.display = 'none';
+            }, 3000);
+
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventDate').value = '';
+            
+            loadEvents();
+        }
+
+        async function loadDashboard() {
+            const eventsRef = ref(database, 'events');
+            const snapshot = await get(eventsRef);
+            
+            let totalEvents = 0;
+            let totalVotes = 0;
+            let activeEvent = null;
+
+            if (snapshot.exists()) {
+                const events = snapshot.val();
+                totalEvents = Object.keys(events).length;
+                
+                for (const eventId in events) {
+                    const event = events[eventId];
+                    if (event.active) activeEvent = event;
+                    if (event.projects) {
+                        event.projects.forEach(p => totalVotes += (p.votes || 0));
+                    }
+                }
+            }
+
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <h2>${totalEvents}</h2>
+                    <p>Total Events</p>
+                </div>
+                <div class="stat-card">
+                    <h2>${totalVotes}</h2>
+                    <p>Total Votes</p>
+                </div>
+                <div class="stat-card">
+                    <h2>${activeEvent ? '1' : '0'}</h2>
+                    <p>Active Event</p>
+                </div>
+            `;
+
+            const activeEventInfo = document.getElementById('activeEventInfo');
+            if (activeEvent) {
+                activeEventInfo.innerHTML = `
+                    <h3>Active Event: ${activeEvent.title}</h3>
+                    <p>Date: ${activeEvent.date}</p>
+                    <p>Projects: ${activeEvent.projectCount}</p>
+                `;
+            } else {
+                activeEventInfo.innerHTML = '<p>No active event. Create one to get started!</p>';
+            }
+        }
+
+        async function loadEvents() {
+            const eventsRef = ref(database, 'events');
+            const snapshot = await get(eventsRef);
+            
+            const eventList = document.getElementById('eventList');
+            eventList.innerHTML = '';
+
+            if (!snapshot.exists()) {
+                eventList.innerHTML = '<p>No events yet. Create your first event!</p>';
+                return;
+            }
+
+            const events = snapshot.val();
+            for (const eventId in events) {
+                const event = events[eventId];
+                const li = document.createElement('li');
+                li.className = 'event-item' + (event.active ? ' active' : '');
+                
+                const totalVotes = event.projects ? event.projects.reduce((sum, p) => sum + (p.votes || 0), 0) : 0;
+                
+                li.innerHTML = `
+                    <div class="event-info">
+                        <h3>${event.title} ${event.active ? '<span class="badge badge-active">ACTIVE</span>' : '<span class="badge badge-inactive">Inactive</span>'}</h3>
+                        <p>Date: ${event.date} | Projects: ${event.projectCount} | Total Votes: ${totalVotes}</p>
+                    </div>
+                    <div class="event-actions">
+                        ${!event.active ? `<button class="btn btn-success" onclick="activateEvent('${eventId}')">Activate</button>` : ''}
+                        <button class="btn btn-primary" onclick="viewEvent('${eventId}')">View</button>
+                        <button class="btn btn-danger" onclick="resetVotes('${eventId}')">Reset Votes</button>
+                        <button class="btn btn-danger" onclick="deleteEvent('${eventId}')">Delete</button>
+                    </div>
+                `;
+                eventList.appendChild(li);
+            }
+        }
+
+        window.activateEvent = async function(eventId) {
+            // Deactivate all events
+            const eventsRef = ref(database, 'events');
+            const snapshot = await get(eventsRef);
+            
+            if (snapshot.exists()) {
+                const events = snapshot.val();
+                for (const id in events) {
+                    await update(ref(database, `events/${id}`), { active: false });
+                }
+            }
+
+            // Activate selected event
+            await update(ref(database, `events/${eventId}`), { active: true });
+            await set(ref(database, 'settings/activeEventId'), eventId);
+            
+            loadEvents();
+            loadDashboard();
+        }
+
+        window.resetVotes = async function(eventId) {
+            if (!confirm('Reset all votes for this event? This cannot be undone.')) return;
+            
+            const projectsRef = ref(database, `events/${eventId}/projects`);
+            const snapshot = await get(projectsRef);
+            
+            if (snapshot.exists()) {
+                const projects = snapshot.val();
+                projects.forEach((project, index) => {
+                    update(ref(database, `events/${eventId}/projects/${index}`), { votes: 0 });
+                });
+            }
+            
+            alert('Votes reset successfully!');
+            loadEvents();
+        }
+
+        window.deleteEvent = async function(eventId) {
+            if (!confirm('Delete this event permanently? This cannot be undone.')) return;
+            
+            await remove(ref(database, `events/${eventId}`));
+            loadEvents();
+            loadDashboard();
+        }
+
+        window.viewEvent = function(eventId) {
+            window.open(`index.html?event=${eventId}`, '_blank');
+        }
+
+        window.changePassword = async function() {
+            const newPassword = document.getElementById('newPassword').value;
+            if (!newPassword || newPassword.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            await set(ref(database, 'admin/password'), newPassword);
+            currentPassword = newPassword;
+            alert('Password changed successfully!');
+            document.getElementById('newPassword').value = '';
+        }
+
+        window.deleteAllData = async function() {
+            if (!confirm('DELETE ALL DATA? This will remove all events, votes, and settings. This cannot be undone!')) return;
+            if (!confirm('Are you absolutely sure? Type YES in the next prompt to confirm.')) return;
+            
+            const confirmation = prompt('Type YES to confirm deletion:');
+            if (confirmation !== 'YES') {
+                alert('Deletion cancelled');
+                return;
+            }
+            
+            await remove(ref(database, 'events'));
+            await remove(ref(database, 'settings'));
+            alert('All data deleted');
+            loadDashboard();
+            loadEvents();
+        }
+
+        // Initialize
+        loadPassword();
+    </script>
+</body>
+</html>
