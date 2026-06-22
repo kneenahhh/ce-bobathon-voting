@@ -383,8 +383,9 @@
             <div class="success-message" id="createSuccess">Event created successfully!</div>
             
             <div class="form-group">
-                <label>Event Title</label>
-                <input type="text" id="eventTitle" placeholder="e.g., Fall 2026 Bobathon" />
+                <label>Bobathon Title</label>
+                <input type="text" id="eventTitle" placeholder="e.g., Marketing Team Bobathon" />
+                <p style="color: #666; font-size: 0.9em; margin-top: 5px;">This will be used in the URL (spaces will be replaced with dashes)</p>
             </div>
 
             <div class="form-group">
@@ -503,17 +504,33 @@
         }
 
         window.createEvent = async function() {
+            console.log('Create event button clicked');
+            
             const title = document.getElementById('eventTitle').value;
             const date = document.getElementById('eventDate').value;
             const projectCount = parseInt(document.getElementById('projectCount').value);
             const activateNow = document.getElementById('activateNow').checked;
 
+            console.log('Form values:', { title, date, projectCount, activateNow });
+
             if (!title || !date) {
-                alert('Please fill in all fields');
+                alert('Please fill in all fields (Bobathon Title and Event Date)');
                 return;
             }
 
-            const eventId = 'bobathon-' + date;
+            if (!projectCount || projectCount < 1 || projectCount > 20) {
+                alert('Please enter a valid number of projects (1-20)');
+                return;
+            }
+
+            // Create URL-friendly event ID from title and date
+            const titleSlug = title.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')  // Replace non-alphanumeric with dashes
+                .replace(/^-+|-+$/g, '');      // Remove leading/trailing dashes
+            
+            const eventId = `bobathon-${date}-${titleSlug}`;
+            console.log('Creating event with ID:', eventId);
+
             const projects = [];
 
             const icons = ['📊', '🗂️', '📈', '🔗', '📋', '🗃️', '📑', '💾', '📉', '🗄️', '📇', '🗂', '📌', '📍', '🔖', '🏷️', '📎', '🖇️', '📐', '📏'];
@@ -579,7 +596,7 @@
                 alert('Event created successfully!');
             } catch (error) {
                 console.error('Error creating event:', error);
-                alert('Error creating event: ' + error.message);
+                alert('Error creating event: ' + error.message + '\n\nCheck the browser console for details.');
             }
         }
 
