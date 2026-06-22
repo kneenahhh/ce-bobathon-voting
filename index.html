@@ -90,6 +90,37 @@
             color: white;
         }
 
+        .privacy-notice {
+            background: rgba(255, 255, 255, 0.95);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .privacy-notice h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .privacy-notice p {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .privacy-notice ul {
+            color: #333;
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .privacy-notice strong {
+            color: #667eea;
+        }
+
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -442,6 +473,21 @@
         </div>
 
         <div id="votingSection">
+            <div class="privacy-notice">
+                <h3>🔒 Privacy & Data Notice</h3>
+                <p><strong>This is a public voting platform hosted on GitHub.</strong> Please keep the following in mind:</p>
+                <ul>
+                    <li><strong>Keep it generic:</strong> Use general project names and descriptions. Do not include company-sensitive information, proprietary data, or confidential details.</li>
+                    <li><strong>Public visibility:</strong> All content (project names, images, descriptions, and vote counts) is visible to anyone with this URL.</li>
+                    <li><strong>Images:</strong> Only upload non-confidential images. Do not upload screenshots containing sensitive data, internal systems, or proprietary information.</li>
+                    <li><strong>Temporary use:</strong> This voting page is for hackathon purposes only. After the winner is announced, this event will be archived and all data will be deleted.</li>
+                    <li><strong>No personal data:</strong> Do not include personal information, employee names, or internal team details in your submissions.</li>
+                </ul>
+                <p style="margin-top: 15px; font-size: 0.95em; color: #666;">
+                    <strong>Questions?</strong> Contact the Bobathon organizer if you have concerns about what information is appropriate to share.
+                </p>
+            </div>
+
             <div class="control-buttons">
                 <button class="control-button edit-btn" id="editBtn" onclick="toggleEditMode()">
                     📝 Edit Your Project Info
